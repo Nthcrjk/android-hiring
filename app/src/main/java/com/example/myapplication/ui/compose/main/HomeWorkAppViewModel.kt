@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class HomeWorkAppUiState(
+    val isLoading: Boolean = false,
     val gender: Gender? = null,
     val age: Int? = null,
     val showDialog: Boolean = false,
@@ -68,23 +69,36 @@ class HomeWorkAppViewModel @Inject constructor(
     fun onContinueBtnClick() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                socketManager.send(
-                    TestRequest(
-                        gender = state.value.gender?.value!!,
-                        age = state.value.age!!
+                if (!state.value.isLoading) {
+                    _state.update {
+                        it.copy(isLoading = true)
+                    }
+                    socketManager.send(
+                        TestRequest(
+                            gender = state.value.gender?.value!!,
+                            age = state.value.age!!
+                        )
                     )
-                )
-                val result = socketManager.receive()
-                notificationManager.notify(NotificationEvent.ShowToast(
-                    if (result.allowed) "Успешно" else "Ошибка"
-                ))
-                if (result.allowed) {
-                    prefsService.gender = state.value.gender
-                    prefsService.age = state.value.age
-                    changeDialogState(false)
+                    val result = socketManager.receive()
+                    notificationManager.notify(
+                        NotificationEvent.ShowToast(
+                            if (result.allowed) "Успешно" else "Ошибка"
+                        )
+                    )
+                    if (result.allowed) {
+                        prefsService.gender = state.value.gender
+                        prefsService.age = state.value.age
+                        changeDialogState(false)
+                    }
+                    _state.update {
+                        it.copy(isLoading = false)
+                    }
                 }
             } catch (e: Exception) {
                 exceptionCatcher(e)
+                _state.update {
+                    it.copy(isLoading = false)
+                }
             }
         }
     }
