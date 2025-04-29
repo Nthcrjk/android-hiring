@@ -1,11 +1,13 @@
 package com.example.myapplication.ui.compose.dialog
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,18 +17,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -60,7 +59,11 @@ import com.example.myapplication.ui.compose.theme.white
 @Composable
 fun CustomGenderAgeDialog(
     username: String = "Username",
-    selectedAgeRange: String = "--",
+    gender: Gender?,
+    age: Int?,
+    changeGender: (Gender) -> Unit,
+    changeAge: (Int) -> Unit,
+    onContinueBtnClick: () -> Unit,
     onDismissRequest: () -> Unit
 ) {
     Dialog(
@@ -73,8 +76,7 @@ fun CustomGenderAgeDialog(
         (LocalView.current.parent as DialogWindowProvider).window.setDimAmount(0f)
 
         var expanded by remember { mutableStateOf(false) }
-
-        val range = IntRange(16, 26)
+        val range = IntRange(16, 30)
 
         Box(
             modifier = Modifier
@@ -131,11 +133,21 @@ fun CustomGenderAgeDialog(
                         )
                         Spacer(modifier = Modifier.weight(1f))
                         GenderOption(
-                            painterResource(R.drawable.femaleicon),
+                            painterResource(R.drawable.maleicon),
+                            gender == Gender.Male,
+                            Color(0xFF3DB2FE),
+                            {
+                                changeGender(Gender.Male)
+                            }
                         )
                         Spacer(Modifier.width(10.dp))
                         GenderOption(
-                            painterResource(R.drawable.maleicon),
+                            painterResource(R.drawable.femaleicon),
+                            gender == Gender.Female,
+                            Color(0xFFFF7BAC),
+                            {
+                                changeGender(Gender.Female)
+                            }
                         )
                     }
                     Spacer(Modifier.height(15.dp))
@@ -169,21 +181,60 @@ fun CustomGenderAgeDialog(
                             DropdownMenu(
                                 expanded = expanded,
                                 shape = RoundedCornerShape(15.dp),
-                                onDismissRequest = {}
+                                containerColor = Color(0xFFF2F2F2),
+                                onDismissRequest = {
+                                    expanded = false
+                                }
                             ) {
                                 range.forEach {
                                     DropdownMenuItem(
-                                        text = { Text(it.toString()) },
+                                        text = {
+                                            Box(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .height(30.dp)
+                                            ) {
+                                                Text(
+                                                    it.toString(),
+                                                    modifier = Modifier
+                                                        .align(Alignment.Center),
+                                                    style = if (it != age)
+                                                        TextStyle(
+                                                            fontWeight = FontWeight.W400,
+                                                            fontSize = 16.sp,
+                                                            fontStyle = FontStyle.Italic,
+                                                        )
+                                                    else
+                                                        TextStyle(
+                                                            fontWeight = FontWeight.W700,
+                                                            fontSize = 16.sp,
+                                                            fontStyle = FontStyle.Italic,
+                                                        )
+                                                )
+                                                if (it == age) Icon(
+                                                    painterResource(R.drawable.checkmark),
+                                                    modifier = Modifier
+                                                        .align(Alignment.CenterEnd)
+                                                        .padding(end = 8.dp),
+                                                    contentDescription = "Age Dropdown",
+                                                    tint = Color.Unspecified,
+                                                ) else null
+                                            }
+                                        },
                                         onClick = {
                                             expanded = false
-                                        }
+                                            changeAge(it)
+                                        },
+                                        contentPadding = PaddingValues(0.dp),
                                     )
+                                    if (it != range.last)
+                                        Divider(thickness = 1.dp, color = Color.LightGray)
                                 }
                             }
                             Text(
                                 modifier = Modifier
                                     .align(Alignment.Center),
-                                text = selectedAgeRange,
+                                text = if (age == null) "- -" else age.toString(),
                                 style = TextStyle(
                                     fontWeight = FontWeight.W700,
                                     fontSize = 16.sp,
@@ -205,7 +256,8 @@ fun CustomGenderAgeDialog(
                     }
                     Spacer(Modifier.height(20.dp))
                     DialogButton(
-                        isEnabled = true
+                        isEnabled = gender != null && age != null,
+                        onClick = onContinueBtnClick
                     )
                     Spacer(Modifier.height(14.dp))
 
@@ -219,19 +271,19 @@ fun CustomGenderAgeDialog(
 @Composable
 fun DialogButton(
     modifier: Modifier = Modifier,
-    isEnabled: Boolean
+    isEnabled: Boolean,
+    onClick: () -> Unit
 ) {
     Button(
-        onClick = {  },
+        onClick = onClick,
         modifier = modifier
             .height(30.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (isEnabled)
-                MaterialTheme.colorScheme.primary
-            else
-                MaterialTheme.colorScheme.secondary
+            containerColor = MaterialTheme.colorScheme.primary,
+            disabledContainerColor = MaterialTheme.colorScheme.secondary
         ),
-        shape = RoundedCornerShape(6.dp)
+        shape = RoundedCornerShape(6.dp),
+        enabled = isEnabled
     ) {
         Text(
             text = "Продолжить",
@@ -248,16 +300,27 @@ fun DialogButton(
 @Composable
 fun GenderOption(
     icon: Painter,
+    isSelected: Boolean,
+    selectedColor: Color,
+    onClick: () -> Unit
 ) {
+    val selectedBackground = selectedColor.copy(alpha = 0.20F)
     Card (
         colors = CardDefaults.cardColors(containerColor = white),
         shape = RoundedCornerShape(10.dp),
+        border = if (isSelected) BorderStroke(2.dp, selectedColor) else null,
         elevation = CardDefaults.elevatedCardElevation(2.dp),
+        onClick = onClick
     ) {
+
         Box(
             modifier = Modifier
-                .size(50.dp),
-            contentAlignment = Alignment.Center
+                .size(50.dp)
+                .then(
+                    if (isSelected) Modifier.background(selectedBackground)
+                    else Modifier
+                ),
+            contentAlignment = Alignment.Center,
         ) {
             Icon(
                 painter = icon,
@@ -268,8 +331,8 @@ fun GenderOption(
     }
 }
 
-enum class Gender {
-    Male, Female
+enum class Gender(val value: String) {
+    Male("m"), Female("f")
 }
 
 @Preview
@@ -277,7 +340,13 @@ enum class Gender {
 fun CustomGenderAgeDialogPreview() {
     HomeWorkTheme {
         CustomGenderAgeDialog(
-            onDismissRequest = {},
+            "",
+            Gender.Female,
+            10,
+            {},
+            {},
+            {},
+            {}
         )
     }
 }

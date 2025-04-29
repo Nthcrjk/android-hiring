@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 @Composable
 fun HomeRoute() {
 
-    val viewModel = hiltViewModel<HomeViewModel>()
 
     HomeScreen()
 }

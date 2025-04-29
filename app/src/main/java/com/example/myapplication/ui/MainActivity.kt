@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import com.example.myapplication.network.SocketManager
+import com.example.myapplication.common.systems.network.SocketManager
 import com.example.myapplication.ui.compose.main.HomeWorkApp
 import dagger.hilt.android.AndroidEntryPoint
 
