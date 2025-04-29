@@ -1,6 +1,5 @@
 package com.example.myapplication.ui.compose.main
 
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.common.base.BaseViewModel
 import com.example.myapplication.common.systems.network.SocketManager
@@ -82,8 +81,8 @@ class HomeWorkAppViewModel @Inject constructor(
                 if (result.allowed) {
                     prefsService.gender = state.value.gender
                     prefsService.age = state.value.age
+                    changeDialogState(false)
                 }
-                changeDialogState(false)
             } catch (e: Exception) {
                 exceptionCatcher(e)
             }

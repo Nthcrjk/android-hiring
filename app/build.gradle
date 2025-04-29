@@ -17,6 +17,9 @@ android {
         versionCode 1
         versionName "1.0"
 
+        buildConfigField("String", "SERVER_ADDRESS", "\"challenge.ciliz.com\"")
+        buildConfigField("int", "SERVER_PORT", "2222")
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 

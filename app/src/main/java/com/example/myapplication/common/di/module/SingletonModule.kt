@@ -13,9 +13,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
-private const val SERVER_ADDRESS = "challenge.ciliz.com"
-private const val SERVER_PORT = 2222
-
 @Module
 @InstallIn(SingletonComponent::class)
 class SingletonModule {
@@ -29,7 +26,7 @@ class SingletonModule {
     @Provides
     @Singleton
     fun provideSocketManager(): SocketManager {
-        return SocketManager(SERVER_ADDRESS, SERVER_PORT)
+        return SocketManager(BuildConfig.SERVER_ADDRESS, BuildConfig.SERVER_PORT)
     }
 
     @Provides

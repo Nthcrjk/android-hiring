@@ -8,13 +8,8 @@ import com.example.myapplication.common.systems.network.SocketManager
 import com.example.myapplication.ui.compose.main.HomeWorkApp
 import dagger.hilt.android.AndroidEntryPoint
 
-private const val SERVER_ADDRESS = "challenge.ciliz.com"
-private const val SERVER_PORT = 2222
-
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-
-    private val socketManager = SocketManager(SERVER_ADDRESS, SERVER_PORT)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
