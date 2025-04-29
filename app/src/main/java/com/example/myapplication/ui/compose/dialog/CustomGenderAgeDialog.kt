@@ -22,10 +22,17 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -64,6 +71,11 @@ fun CustomGenderAgeDialog(
 
     ) {
         (LocalView.current.parent as DialogWindowProvider).window.setDimAmount(0f)
+
+        var expanded by remember { mutableStateOf(false) }
+
+        val range = IntRange(16, 26)
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -150,8 +162,24 @@ fun CustomGenderAgeDialog(
                                 )
                                 .width(110.dp)
                                 .height(30.dp)
-                                .clickable { }
+                                .clickable {
+                                    expanded = true
+                                }
                         ) {
+                            DropdownMenu(
+                                expanded = expanded,
+                                shape = RoundedCornerShape(15.dp),
+                                onDismissRequest = {}
+                            ) {
+                                range.forEach {
+                                    DropdownMenuItem(
+                                        text = { Text(it.toString()) },
+                                        onClick = {
+                                            expanded = false
+                                        }
+                                    )
+                                }
+                            }
                             Text(
                                 modifier = Modifier
                                     .align(Alignment.Center),
